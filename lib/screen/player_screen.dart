@@ -12,11 +12,11 @@ class PlayerScreen extends StatefulWidget {
 }
 
 class _PlayerScreenState extends State<PlayerScreen> {
-
   int _currentItemPlaying = 0;
   double _currentPlayback = 0;
+  bool isPlayed = false;
 
-  String formatPlayerTime (double time){
+  String formatPlayerTime(double time) {
     final min = time ~/ 60;
     final sec = time % 60;
     return '$min:${sec.toStringAsFixed(0).padRight(2, '0')}';
@@ -36,19 +36,40 @@ class _PlayerScreenState extends State<PlayerScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  NeuButton(size: 60,
-                    child: Icon(musicList[_currentItemPlaying].isFav
-                      ? Icons.favorite
-                      : Icons.favorite_border, color: AppColor.secondaryTextColor,),),
-                  Text('Playing now'.toUpperCase(),
-                    style: const TextStyle(color: AppColor.secondaryTextColor, fontSize:  14, fontWeight: FontWeight.bold),),
                   NeuButton(
                     size: 60,
-                    child: const Icon(Icons.menu, color: AppColor.secondaryTextColor,),
-                  onPress: (){
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) => const PlayerListScreen()));
-                  },),
+                    child: Icon(
+                      musicList[_currentItemPlaying].isFav
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: AppColor.secondaryTextColor,
+                    ),
+                  ),
+                  Text(
+                    'Playing now'.toUpperCase(),
+                    style: const TextStyle(
+                        color: AppColor.secondaryTextColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  NeuButton(
+                    size: 60,
+                    child: const Icon(
+                      Icons.menu,
+                      color: AppColor.secondaryTextColor,
+                    ),
+                    onPress: () async {
+                      int selectedIndex = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PlayerListScreen(
+                                    selectedIndex: _currentItemPlaying,
+                                  )));
+                      setState(() {
+                        _currentItemPlaying = selectedIndex;
+                      });
+                    },
+                  ),
                 ],
               ),
               NeuButton(
@@ -57,14 +78,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 padding: 10,
                 imageUrl: musicList[_currentItemPlaying].imageUrl,
               ),
-              Text(musicList[_currentItemPlaying].name,
+              Text(
+                musicList[_currentItemPlaying].name,
                 style: const TextStyle(
                   color: AppColor.primaryTextColor,
                   fontSize: 25,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Text(musicList[_currentItemPlaying].artist,
+              Text(
+                musicList[_currentItemPlaying].artist,
                 style: const TextStyle(
                   color: AppColor.secondaryTextColor,
                   fontSize: 14,
@@ -76,14 +99,16 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(formatPlayerTime(_currentPlayback),
+                    Text(
+                      formatPlayerTime(_currentPlayback),
                       style: const TextStyle(
                         color: AppColor.secondaryTextColor,
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Text(formatPlayerTime(musicList[_currentItemPlaying].length),
+                    Text(
+                      formatPlayerTime(musicList[_currentItemPlaying].length),
                       style: const TextStyle(
                         color: AppColor.secondaryTextColor,
                         fontSize: 14,
@@ -108,26 +133,61 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   NeuButton(
-                      size: 80,
-                    child: Icon(Icons.skip_previous_rounded,
-                    color: AppColor.secondaryTextColor,
-                    size: 35,),
-                  ),
-                  NeuButton(
+                    onPress: () {
+                      if (_currentItemPlaying > 0) {
+                        setState(() {
+                          _currentItemPlaying--;
+                        });
+                      }
+                    },
                     size: 80,
-                    colors: [
-                      AppColor.blueTopDark,
-                      AppColor.blue
-                    ],
-                    child: Icon(Icons.pause_rounded,
+                    child: const Icon(
+                      Icons.skip_previous_rounded,
                       color: AppColor.secondaryTextColor,
-                      size: 35,),
+                      size: 35,
+                    ),
                   ),
+                  isPlayed
+                      ? NeuButton(
+                          size: 80,
+                          onPress: () {
+                            setState(() {
+                              isPlayed = !isPlayed;
+                            });
+                          },
+                          colors: const [AppColor.blueTopDark, AppColor.blue],
+                          child: const Icon(
+                            Icons.pause_rounded,
+                            color: AppColor.secondaryTextColor,
+                            size: 35,
+                          ),
+                        )
+                      : NeuButton(
+                          onPress: () {
+                            setState(() {
+                              isPlayed = !isPlayed;
+                            });
+                          },
+                          size: 80,
+                          child: const Icon(
+                            Icons.play_arrow_rounded,
+                            color: AppColor.secondaryTextColor,
+                          ),
+                        ),
                   NeuButton(
+                    onPress: () {
+                      if (_currentItemPlaying < musicList.length - 1) {
+                        setState(() {
+                          _currentItemPlaying++;
+                        });
+                      }
+                    },
                     size: 80,
-                    child: Icon(Icons.skip_next_rounded,
+                    child: const Icon(
+                      Icons.skip_next_rounded,
                       color: AppColor.secondaryTextColor,
-                      size: 35,),
+                      size: 35,
+                    ),
                   ),
                 ],
               )
@@ -138,5 +198,3 @@ class _PlayerScreenState extends State<PlayerScreen> {
     );
   }
 }
-
-
